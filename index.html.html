@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamburgueria da Jô - Painel de Controle Operacional e Gestão</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons para interface moderna -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0f0f11;
+            color: #f3f4f6;
+        }
+        .font-brand {
+            font-family: 'Barlow Condensed', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #18181b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #eab308;
+            border-radius: 4px;
+        }
+        /* Animações suaves */
+        .tab-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .badge-pulse {
+            animation: pulse 2.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.03); opacity: 0.9; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col overflow-x-hidden">
+
+    <!-- TOPBAR / CABEÇALHO DA MARCA -->
+    <header class="bg-[#141417] border-b border-zinc-800 sticky top-0 z-50 px-4 py-3 shadow-lg">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-4">
+            <!-- Logotipo e Nome -->
+            <div class="flex items-center gap-3">
+                <div class="relative w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center shadow-md shadow-yellow-500/20">
+                    <!-- Hamburger SVG Logo -->
+                    <svg class="w-8 h-8 text-[#0f0f11]" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C8.69 2 6 4.69 6 8v1h12V8c0-3.31-2.69-6-6-6M3 11c0-.55.45-1 1-1h16c.55 0 1 .45 1 1v1H3zm19 3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v2c0 2.2 1.8 4 4 4h12c2.2 0 4-1.8 4-4zm-14 3H6v-1h2zm4 0h-2v-1h2zm4 0h-2v-1h2zm4 0h-2v-1h2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black tracking-wider text-white uppercase font-brand leading-none">Hamburgueria da Jô</h1>
+                    <p class="text-xs text-yellow-500 font-medium">Painel de Operações & Gestão • Martinópolis - SP</p>
+                </div>
+            </div>
+
+            <!-- Navegação Principal do Sistema Integrado -->
+            <nav class="flex flex-wrap justify-center gap-2 bg-[#0c0c0e] p-1.5 rounded-xl border border-zinc-800">
+                <button onclick="switchTab('landing')" id="btn-landing" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 bg-yellow-500 text-black shadow-md shadow-yellow-500/10">
+                    <i data-lucide="home" class="w-4 h-4"></i> Início / PDV
+                </button>
+                <button onclick="switchTab('brand')" id="btn-brand" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-zinc-900">
+                    <i data-lucide="palette" class="w-4 h-4"></i> Marca & Equipe
+                </button>
+                <button onclick="switchTab('menu')" id="btn-menu" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-zinc-900">
+                    <i data-lucide="utensils" class="w-4 h-4"></i> Cardápio Ativo
+                </button>
+                <button onclick="switchTab('waiter')" id="btn-waiter" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-zinc-900 relative">
+                    <i data-lucide="smartphone" class="w-4 h-4"></i> Comandas (Garçom)
+                    <span id="waiter-bell-count" class="hidden absolute -top-1 -right-1 bg-yellow-500 text-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold animate-pulse">0</span>
+                </button>
+                <button onclick="switchTab('kitchen')" id="btn-kitchen" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-zinc-900 relative">
+                    <i data-lucide="chef-hat" class="w-4 h-4"></i> Monitor da Chapa
+                    <span id="kitchen-count" class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold animate-bounce">0</span>
+                </button>
+                <button onclick="switchTab('finance')" id="btn-finance" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-zinc-900">
+                    <i data-lucide="calculator" class="w-4 h-4"></i> Financeiro & Custos
+                </button>
+                <button onclick="switchTab('ai')" id="btn-ai" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-zinc-900">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i> Consultor IA ✨
+                </button>
+            </nav>
+
+            <!-- Botão Compartilhar Página -->
+            <button onclick="openShareModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition shadow-md shadow-emerald-950/30">
+                <i data-lucide="share-2" class="w-4 h-4"></i> Compartilhar Link
+            </button>
+        </div>
+    </header>
+
+    <!-- NOTIFICAÇÃO DO PROCESSO OPERACIONAL -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-zinc-900 text-white border-l-4 border-yellow-500 px-5 py-4 rounded-xl shadow-2xl z-50 max-w-sm flex items-start gap-3 transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none">
+        <div class="bg-yellow-500/10 p-2 rounded-lg text-yellow-500" id="toast-icon">
+            <i data-lucide="info" class="w-5 h-5"></i>
+        </div>
+        <div>
+            <h4 class="font-bold text-sm text-white" id="toast-title">Notificação</h4>
+            <p class="text-xs text-zinc-400 mt-1" id="toast-message">Mensagem padrão da Hamburgueria da Jô.</p>
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
+
+        <!-- ================= SECTION 1: LANDING PAGE ================= -->
+        <section id="section-landing" class="tab-content block">
+            <!-- Hero Section -->
+            <div class="relative bg-gradient-to-r from-black to-zinc-900 rounded-3xl overflow-hidden border border-zinc-800 p-8 md:p-12 mb-8 flex flex-col md:flex-row items-center gap-8 shadow-2xl">
+                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-yellow-500/10 via-transparent to-transparent"></div>
+                <div class="flex-1 space-y-6 relative z-10">
+                    <span class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest">
+                        🍔 Hambúrguer Gourmet Legítimo
+                    </span>
+                    <h2 class="text-4xl md:text-6xl font-black tracking-tight text-white font-brand uppercase leading-tight">
+                        Sabor Artesanal com <span class="text-yellow-500">Gestão Profissional</span>.
+                    </h2>
+                    <p class="text-zinc-400 text-base md:text-lg max-w-xl">
+                        A Hamburgueria da Jô traz para Martinópolis-SP o equilíbrio perfeito do hambúrguer premium: blends de carnes nobres grelhadas no fogo, pães de fermentação natural e molhos autorais incríveis.
+                    </p>
+                    <div class="flex flex-wrap gap-4 pt-2">
+                        <button onclick="switchTab('menu')" class="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition transform hover:scale-105">
+                            Ver Cardápio <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="switchTab('brand')" class="bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 px-6 py-3 rounded-xl font-bold transition">
+                            Conhecer Identidade
+                        </button>
+                    </div>
+                </div>
+                <!-- Logotipo Ilustrativo Grande Vetorial -->
+                <div class="w-64 h-64 md:w-80 md:h-80 relative flex items-center justify-center flex-shrink-0">
+                    <div class="absolute inset-0 bg-yellow-500/20 rounded-full filter blur-3xl opacity-30"></div>
+                    <!-- Selo de Marca Vetorial -->
+                    <div class="w-60 h-60 md:w-72 md:h-72 rounded-full border-4 border-dashed border-yellow-500/30 flex items-center justify-center p-4">
+                        <div class="w-full h-full rounded-full bg-[#141417] border border-zinc-800 flex flex-col items-center justify-center text-center p-6 shadow-2xl">
+                            <!-- Hambúrguer SVG Estilizado -->
+                            <svg class="w-20 h-20 text-yellow-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.003 9.003 0 0 0 8.354-5.646 9.003 9.003 0 0 0-8.354-5.646 9.003 9.003 0 0 0-8.354 5.646 9.003 9.003 0 0 0 8.354 5.646zm0 0v1.5a1.5 1.5 0 0 0 1.5 1.5h3m-4.5-3H9M12 11h.008v.008H12V11zm3 0h.008v.008H15V11zm-6 0h.008v.008H9V11z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 6h4.5m-9 0H12" />
+                            </svg>
+                            <span class="font-brand font-extrabold text-2xl uppercase tracking-wider text-white">Hamburgueria da Jô</span>
+                            <span class="text-[10px] text-zinc-400 tracking-widest mt-1">EST. 2022 • MARTINÓPOLIS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de Pilares e Metodologia do Negócio -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Missão -->
+                <div class="bg-[#141417] p-6 rounded-2xl border border-zinc-800 hover:border-zinc-700 transition">
+                    <div class="w-12 h-12 bg-yellow-500/10 text-yellow-500 rounded-xl flex items-center justify-center mb-4">
+                        <i data-lucide="target" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-white mb-2">Missão</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed">
+                        Transformar ingredientes de pequenos produtores parceiros em lanches e refeições de qualidade superior, garantindo geração de valor, acolhimento no ponto de venda e excelência no delivery.
+                    </p>
+                </div>
+                <!-- Visão -->
+                <div class="bg-[#141417] p-6 rounded-2xl border border-zinc-800 hover:border-zinc-700 transition">
+                    <div class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center mb-4">
+                        <i data-lucide="eye" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-white mb-2">Visão</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed">
+                        Ser a principal referência de gastronomia artesanal e agilidade operacional na região do oeste paulista, destacando-se pela consistência de sabor e sustentabilidade de processos.
+                    </p>
+                </div>
+                <!-- Valores -->
+                <div class="bg-[#141417] p-6 rounded-2xl border border-zinc-800 hover:border-zinc-700 transition">
+                    <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center mb-4">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-white mb-2">Valores</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed">
+                        Comprometimento extremo com a satisfação do cliente, responsabilidade socioambiental ativa (Amigos da Solidariedade), respeito e desenvolvimento da nossa equipe e processos limpos de fabricação.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Localização e Informações Reais da Operação -->
+            <div class="bg-[#141417] p-6 md:p-8 rounded-3xl border border-zinc-800">
+                <div class="flex flex-col lg:flex-row gap-8 items-center">
+                    <div class="flex-1 space-y-4">
+                        <h3 class="text-2xl font-bold text-white font-brand uppercase tracking-wide">Ponto de Venda e Operação</h3>
+                        <p class="text-zinc-400 text-sm leading-relaxed">
+                            Nossa infraestrutura foi totalmente projetada para oferecer excelente fluxo de atendimento ao cliente, otimização de tempo de chapa e amplo suporte logístico para entregadores.
+                        </p>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 text-sm">
+                                <span class="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center text-yellow-500">
+                                    <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                </span>
+                                <span class="text-zinc-300">Rua Emygdio Falkemback, Nº 610 - Jardim Oásis, Martinópolis - SP</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-sm">
+                                <span class="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center text-yellow-500">
+                                    <i data-lucide="building-2" class="w-4 h-4"></i>
+                                </span>
+                                <span class="text-zinc-300">Estrutura Otimizada: ~350m² de cozinha de fluxo contínuo e salão climatizado.</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-sm">
+                                <span class="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center text-emerald-500">
+                                    <i data-lucide="leaf" class="w-4 h-4"></i>
+                                </span>
+                                <span class="text-zinc-300">Socioambiental: Projeto "Amigos da Solidariedade" e embalagens 100% recicláveis.</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Painel Interativo de Indicadores Reais -->
+                    <div class="w-full lg:w-96 bg-[#0c0c0e] p-6 rounded-2xl border border-zinc-800 space-y-4">
+                        <h4 class="font-bold text-sm text-yellow-500 uppercase tracking-widest border-b border-zinc-800 pb-2">Metas Operacionais do Negócio</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <span class="text-xs text-zinc-500 block">Tempo Médio de Chapa</span>
+                                <span class="text-lg font-black text-white">8 a 12 min</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-zinc-500 block">Margem de Lucro Alvo</span>
+                                <span class="text-lg font-black text-white">42,8%</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-zinc-500 block">CMV Máximo de Alvo</span>
+                                <span class="text-lg font-black text-emerald-400">57,11%</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-zinc-500 block">Ponto de Equilíbrio</span>
+                                <span class="text-lg font-black text-yellow-500">R$ 56.485</span>
+                            </div>
+                        </div>
+                        <div class="bg-zinc-900 p-3 rounded-xl border border-zinc-800 text-center text-xs text-zinc-400">
+                            Planejamento de Capital de Giro e custos estruturados para operação de alta rentabilidade.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 2: MARCA, MASCOTE E UNIFORMES ================= -->
+        <section id="section-brand" class="tab-content hidden space-y-8">
+            <!-- Grid Identidade Visual e Mascote -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- Manual da Marca / Cores -->
+                <div class="bg-[#141417] p-6 md:p-8 rounded-3xl border border-zinc-800 space-y-6">
+                    <h3 class="text-2xl font-bold text-white font-brand uppercase tracking-wide">Manual de Identidade Visual</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed">
+                        A escolha cromática da Hamburgueria da Jô combina elegância, modernidade e estímulo psicológico ao apetite. O design circular simula um selo clássico de qualidade artesanal.
+                    </p>
+                    
+                    <div class="space-y-4">
+                        <h4 class="font-semibold text-sm text-zinc-300">Paleta de Cores Oficial</h4>
+                        <!-- Cores Interativas -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-[#0f0f11] p-3 rounded-2xl border border-zinc-800 text-center">
+                                <div class="w-full h-16 bg-[#0f0f11] rounded-lg border border-zinc-700 mb-2"></div>
+                                <span class="text-xs font-bold block text-white">Preto Premium</span>
+                                <span class="text-[10px] text-zinc-500">#0F0F11</span>
+                            </div>
+                            <div class="bg-[#0f0f11] p-3 rounded-2xl border border-zinc-800 text-center">
+                                <div class="w-full h-16 bg-yellow-500 rounded-lg mb-2 shadow-lg shadow-yellow-500/20"></div>
+                                <span class="text-xs font-bold block text-white">Amarelo Cheddar</span>
+                                <span class="text-[10px] text-zinc-500">#EAB308</span>
+                            </div>
+                            <div class="bg-[#0f0f11] p-3 rounded-2xl border border-zinc-800 text-center">
+                                <div class="w-full h-16 bg-red-600 rounded-lg mb-2 shadow-lg shadow-red-600/20"></div>
+                                <span class="text-xs font-bold block text-white">Vermelho Picante</span>
+                                <span class="text-[10px] text-zinc-500">#DC2626</span>
+                            </div>
+                            <div class="bg-[#0f0f11] p-3 rounded-2xl border border-zinc-800 text-center">
+                                <div class="w-full h-16 bg-[#F4F4F5] rounded-lg mb-2 border border-zinc-300"></div>
+                                <span class="text-xs font-bold block text-zinc-700">Off-White Pão</span>
+                                <span class="text-[10px] text-zinc-500">#F4F4F5</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Posicionamento de Mercado -->
+                    <div class="bg-zinc-900/50 p-4 rounded-2xl border border-zinc-800 text-xs text-zinc-400 space-y-2">
+                        <p class="font-bold text-zinc-300">Posicionamento de Mercado:</p>
+                        <p>
+                            A sonoridade curta de "Jô" promove fácil memorização pelo público de Martinópolis. A paleta sóbria e o hambúrguer estilizado reforçam uma marca descolada, jovial e voltada para a experiência gourmet.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Mascote Oficial - Jôzinha -->
+                <div class="bg-[#141417] p-6 md:p-8 rounded-3xl border border-zinc-800 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white font-brand uppercase tracking-wide">Mascote Oficial: Jôzinha</h3>
+                        <p class="text-zinc-400 text-sm leading-relaxed mb-4">
+                            A **"Jôzinha"** representa a simpatia, o carinho caseiro e a paixão pelo preparo de alimentos com alta qualidade técnica. Ela é retratada como uma chef descolada e carismática.
+                        </p>
+                    </div>
+
+                    <!-- Representação Visual Interativa da Mascote (SVG Animado) -->
+                    <div class="bg-[#0c0c0e] rounded-2xl p-6 border border-zinc-800 flex flex-col md:flex-row items-center gap-6">
+                        <!-- Desenho Vetorial -->
+                        <div class="w-32 h-32 relative flex-shrink-0 bg-yellow-500/10 rounded-full flex items-center justify-center border border-yellow-500/20">
+                            <!-- SVG Mascote Divertida Chef -->
+                            <svg class="w-24 h-24 text-yellow-500" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+                                <!-- Chapéu de Chef -->
+                                <path d="M18 20C18 14 22 10 32 10C42 10 46 14 46 20C46 23 42 24 32 24C22 24 18 23 18 20Z" fill="currentColor" opacity="0.15"/>
+                                <path d="M18 20C18 14 22 10 32 10C42 10 46 14 46 20" stroke="currentColor" stroke-linecap="round"/>
+                                <path d="M14 26C14 22 18 20 18 20H46C46 20 50 22 50 26C50 28 46 30 32 30C18 30 14 28 14 26Z" stroke="currentColor"/>
+                                <!-- Rosto -->
+                                <circle cx="32" cy="40" r="10" stroke="currentColor"/>
+                                <!-- Olhos Piscando -->
+                                <path d="M28 38C29 38 29.5 38.5 30 39" stroke="currentColor" stroke-linecap="round"/>
+                                <path d="M36 38C35 38 34.5 38.5 34 39" stroke="currentColor" stroke-linecap="round"/>
+                                <!-- Sorriso Grande -->
+                                <path d="M28 43C30 45 34 45 36 43" stroke="currentColor" stroke-linecap="round"/>
+                                <!-- Detalhe Bochechas Rosadas -->
+                                <circle cx="25" cy="41" r="1.5" fill="red" opacity="0.6"/>
+                                <circle cx="39" cy="41" r="1.5" fill="red" opacity="0.6"/>
+                            </svg>
+                        </div>
+                        <div class="space-y-2">
+                            <span class="bg-yellow-500 text-black px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">Interação da Mascote</span>
+                            <p class="text-zinc-300 text-sm font-semibold">"Seja bem-vindo à Hamburgueria da Jô!"</p>
+                            <p class="text-zinc-400 text-xs">
+                                Clique para trocar a mensagem e ver dicas operacionais e conselhos para melhorar as vendas.
+                            </p>
+                            <button onclick="changeMascotSpeech()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-yellow-500 px-3 py-1.5 rounded-lg border border-zinc-700 transition">
+                                Nova Dica da Jôzinha
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de Uniformes Oficiais Baseados no Organograma -->
+            <div class="bg-[#141417] p-6 md:p-8 rounded-3xl border border-zinc-800 space-y-6">
+                <div>
+                    <h3 class="text-2xl font-bold text-white font-brand uppercase tracking-wide">Uniformes dos Colaboradores</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed">
+                        Uniformes desenhados de acordo com as normas de higiene do Ministério da Saúde e que preservam as cores e identidade da marca para reforçar o profissionalismo nas operações.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <!-- Uniforme 1: Gerência -->
+                    <div class="bg-[#0c0c0e] p-5 rounded-2xl border border-zinc-800 text-center flex flex-col justify-between hover:border-yellow-500/40 transition">
+                        <div class="space-y-3">
+                            <span class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase">Gerência</span>
+                            <div class="w-full h-40 bg-zinc-900 rounded-xl flex items-center justify-center p-4 border border-zinc-800">
+                                <!-- Ilustração do Uniforme Polo Black -->
+                                <div class="relative flex flex-col items-center">
+                                    <div class="w-16 h-20 bg-zinc-950 border-t-4 border-yellow-500 rounded-b-lg flex items-center justify-center">
+                                        <span class="text-[8px] text-zinc-500">Logo Jô</span>
+                                    </div>
+                                    <div class="text-xs font-bold text-white mt-2">Polo Preta Especial</div>
+                                    <div class="text-[10px] text-zinc-500">Calça Sarja e Crachá</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-zinc-400 text-xs mt-3">Garante a postura de liderança, planejamento de compras e atendimento premium.</p>
+                    </div>
+
+                    <!-- Uniforme 2: Chef de Cozinha -->
+                    <div class="bg-[#0c0c0e] p-5 rounded-2xl border border-zinc-800 text-center flex flex-col justify-between hover:border-yellow-500/40 transition">
+                        <div class="space-y-3">
+                            <span class="bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase">Chef de Cozinha</span>
+                            <div class="w-full h-40 bg-zinc-900 rounded-xl flex items-center justify-center p-4 border border-zinc-800">
+                                <!-- Dólmã de Chef -->
+                                <div class="relative flex flex-col items-center">
+                                    <div class="w-16 h-20 bg-zinc-200 border-l-4 border-yellow-500 rounded-b-lg flex flex-col items-center justify-center text-black">
+                                        <div class="flex gap-1 mb-1"><span class="w-1.5 h-1.5 rounded-full bg-zinc-600"></span><span class="w-1.5 h-1.5 rounded-full bg-zinc-600"></span></div>
+                                        <span class="text-[8px] font-bold">Chef Jô</span>
+                                    </div>
+                                    <div class="text-xs font-bold text-white mt-2">Dólmã Off-White</div>
+                                    <div class="text-[10px] text-zinc-500">Touca e Avental Térmico</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-zinc-400 text-xs mt-3">Higiene máxima para confecção dos blends e montagem padronizada dos pratos.</p>
+                    </div>
+
+                    <!-- Uniforme 3: Assistente de Cozinha -->
+                    <div class="bg-[#0c0c0e] p-5 rounded-2xl border border-zinc-800 text-center flex flex-col justify-between hover:border-yellow-500/40 transition">
+                        <div class="space-y-3">
+                            <span class="bg-orange-500/10 text-orange-400 border border-orange-500/20 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase">Assistente de Cozinha</span>
+                            <div class="w-full h-40 bg-zinc-900 rounded-xl flex items-center justify-center p-4 border border-zinc-800">
+                                <!-- Camiseta com avental -->
+                                <div class="relative flex flex-col items-center">
+                                    <div class="w-16 h-20 bg-zinc-800 rounded-b-lg relative overflow-hidden flex items-center justify-center">
+                                        <!-- Avental Vermelho sobreposto -->
+                                        <div class="absolute bottom-0 w-12 h-14 bg-red-600 rounded-t-sm"></div>
+                                        <span class="text-[8px] text-white z-10 font-bold">H. Jô</span>
+                                    </div>
+                                    <div class="text-xs font-bold text-white mt-2">Camiseta & Avental</div>
+                                    <div class="text-[10px] text-zinc-500">Touca & Sapato Fechado</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-zinc-400 text-xs mt-3">Praticidade de locomoção com avental impermeável para manipulação de hortaliças.</p>
+                    </div>
+
+                    <!-- Uniforme 4: Garçom / Atendente -->
+                    <div class="bg-[#0c0c0e] p-5 rounded-2xl border border-zinc-800 text-center flex flex-col justify-between hover:border-yellow-500/40 transition">
+                        <div class="space-y-3">
+                            <span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase">Garçom / Atendente</span>
+                            <div class="w-full h-40 bg-zinc-900 rounded-xl flex items-center justify-center p-4 border border-zinc-800">
+                                <!-- Camiseta Preta com avental de cintura -->
+                                <div class="relative flex flex-col items-center">
+                                    <div class="w-16 h-20 bg-zinc-950 rounded-b-lg relative overflow-hidden flex items-center justify-center">
+                                        <!-- Avental de cintura cinza/amarelo -->
+                                        <div class="absolute bottom-0 w-16 h-8 bg-zinc-700 border-t border-yellow-500"></div>
+                                        <span class="text-[8px] text-white z-10">Jô Equipe</span>
+                                    </div>
+                                    <div class="text-xs font-bold text-white mt-2">Camiseta & Avental Meio</div>
+                                    <div class="text-[10px] text-zinc-500">Porta-Tablet Integrado</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-zinc-400 text-xs mt-3">Agilidade para atendimento nas mesas, anotação digital e entrega rápida.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 3: CARDÁPIO (CLIENTE / PDV) ================= -->
+        <section id="section-menu" class="tab-content hidden space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h3 class="text-2xl font-bold text-white font-brand uppercase tracking-wide">Cardápio Ativo no Sistema</h3>
+                    <p class="text-zinc-400 text-sm">Realize pedidos de clientes para simular o fluxo de caixa e a fila de produção da chapa.</p>
+                </div>
+                <!-- Filtros do Cardápio -->
+                <div class="flex gap-2">
+                    <button onclick="filterCategory('todos')" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold bg-yellow-500 text-black">Todos</button>
+                    <button onclick="filterCategory('lanches')" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold bg-zinc-900 text-zinc-400 hover:text-white">Lanches</button>
+                    <button onclick="filterCategory('porcoes')" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold bg-zinc-900 text-zinc-400 hover:text-white">Porções</button>
+                    <button onclick="filterCategory('bebidas')" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold bg-zinc-900 text-zinc-400 hover:text-white">Bebidas</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Grid de Produtos -->
+                <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6" id="menu-grid">
+                    <!-- Gerado Dinamicamente por JS para maior controle e dinamismo -->
+                </div>
+
+                <!-- Carrinho Simulado para Envio de Pedido -->
+                <div class="bg-[#141417] p-6 rounded-3xl border border-zinc-800 space-y-6 sticky top-24 h-fit">
+                    <h4 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i data-lucide="shopping-bag" class="text-yellow-500"></i> Pedido de Mesa / Caixa
+                    </h4>
+                    
+                    <div id="cart-items" class="space-y-4 max-h-60 overflow-y-auto pr-2">
+                        <!-- Itens do carrinho aparecem aqui -->
+                        <p class="text-zinc-500 text-xs text-center py-8">Nenhum item adicionado ainda. Selecione produtos ao lado!</p>
+                    </div>
+
+                    <!-- Dados da Mesa para o Garçom / Delivery -->
+                    <div class="space-y-3 pt-4 border-t border-zinc-800">
+                        <div>
+                            <label class="block text-xs text-zinc-400 font-bold mb-1">Mesa ou Nome do Cliente</label>
+                            <input type="text" id="customer-ref" placeholder="Ex: Mesa 4 ou Presencial Kevin" class="w-full bg-[#0c0c0e] border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-yellow-500">
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-zinc-400">Total Geral:</span>
+                            <span class="font-black text-white text-lg" id="cart-total">R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <button onclick="submitOrder('Mesa/Cliente')" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition">
+                        Enviar para Chapa <i data-lucide="send" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 4: ANOTAÇÃO DE PEDIDOS & RETIRADAS (GARÇOM) ================= -->
+        <section id="section-waiter" class="tab-content hidden space-y-6">
+            <div class="bg-[#141417] p-6 md:p-8 rounded-3xl border border-zinc-800 space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white font-brand uppercase tracking-wide">Painel do Garçom / Atendimento</h3>
+                        <p class="text-zinc-400 text-sm">Gerenciamento ágil de comandas e monitoramento de pratos prontos no balcão.</p>
+                    </div>
+                    <span class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1.5 rounded-full text-xs font-bold uppercase">
+                        Operação Ativa • Terminal Garçom
+                    </span>
+                </div>
+
+                <!-- ALERTA DE PRATOS PRONTOS NO BALCÃO (SOLICITAÇÃO DO USUÁRIO) -->
+                <div class="bg-zinc-950 p-6 rounded-2xl border-2 border-dashed border-yellow-500/40 space-y-4">
+                    <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
+                        <h4 class="font-bold text-yellow-500 text-sm flex items-center gap-2">
+                            <span class="relative flex h-3 w-3">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
+                            </span>
+                            Pratos Aguardando Retirada (Balcão) 🔔
+                        </h4>
+                        <span id="balcao-count" class="bg-yellow-500 text-black px-2 py-0.5 rounded text-xs font-bold">0</span>
+                    </div>
+                    <div id="balcao-waiter-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[80px]">
+                        <!-- Itens prontos na cozinha aparecem aqui dinamicamente -->
+                        <div class="col-span-full text-center text-zinc-600 text-xs py-4 flex items-center justify-center gap-2">
+                            <i data-lucide="smile" class="w-4 h-4 text-zinc-600"></i> Nenhum lanche pendente no balcão de retirada.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulário de Comanda Rápida e Comanda Atual -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="bg-[#0c0c0e] p-6 rounded-2xl border border-zinc-800 space-y-4">
+                        <h4 class="font-bold text-white text-sm border-b border-zinc-800 pb-2">Lançamento de Comanda Rápida</h4>
+                        
+                        <div>
+                            <label class="block text-xs text-zinc-400 font-bold mb-1">Mesa do Atendimento</label>
+                            <select id="comanda-mesa" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-yellow-500">
+                                <option value="Mesa 1">Mesa 1</option>
+                                <option value="Mesa 2">Mesa 2</option>
+                                <option value="Mesa 3">Mesa 3</option>
+                                <option value="Mesa 4">Mesa 4</option>
+                                <option value="Mesa 5">Mesa 5</option>
+                                <option value="Mesa 6">Mesa 6</option>
+                                <option value="Delivery WhatsApp">Delivery WhatsApp</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs text-zinc-400 font-bold mb-1">Adicionar Lanche / Produto</label>
+                            <select id="comanda-produto" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-yellow-500">
+                                <!-- Preenchido dinamicamente por JS -->
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs text-zinc-400 font-bold mb-1">Quantidade</label>
+                            <input type="number" id="comanda-qtd" value="1" min="1" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-yellow-500">
+                        </div>
+
+                        <button onclick="addComandaItem()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded-xl font-bold text-sm border border-zinc-700 transition">
+                            Adicionar ao Pedido da Mesa
+                        </button>
+                    </div>
+
+                    <!-- Mesa de Resumo da Comanda Ativa do Garçom -->
+                    <div class="lg:col-span-2 bg-[#0c0c0e] p-6 rounded-2xl border border-zinc-800 space-y-4 flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <h4 class="font-bold text-white text-sm border-b border-zinc-800 pb-2">Comanda Atual Preparada</h4>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead>
+                                        <tr class="text-zinc-500 border-b border-zinc-800">
+                                            <th class="py-2">Mesa</th>
+                                            <th class="py-2">Produto</th>
+                                            <th class="py-2 text-center">Qtd</th>
+                                            <th class="py-2 text-right">Preço</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="comanda-table-body">
+                                        <!-- Preenchido via Javascript -->
+                                        <tr>
+                                            <td colspan="4" class="text-center text-zinc-500 py-8">Nenhum item lançado na comanda temporária.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-4 border-t border-zinc-800">
+                            <div>
+                                <span class="text-xs text-zinc-500 block">Total da Comanda</span>
+                                <span class="font-black text-white text-lg" id="comanda-total">R$ 0,00</span>
+                            </div>
+                            <button onclick="submitWaiterOrder()" class="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-2.5 rounded-xl font-bold text-sm transition">
+                                Enviar para Produção
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 5: COZINHA (FILA DE PREPARAÇÃO) ================= -->
+        <section id="section-kitchen" class="tab-content hidden space-y-6">
+            <div class="bg-[#141417] p-6 md:p-8 rounded-3xl border border-zinc-800 space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white font-brand uppercase tracking-wide">Painel de Produção da Cozinha</h3>
+                        <p class="text-zinc-400 text-sm">Fila cronológica de preparação dos pedidos na chapa.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1 text-xs rounded-full font-bold">Chapa Ligada</span>
+                        <span class="bg-orange-500/10 text-orange-400 border border-orange-500/20 px-3 py-1 text-xs rounded-full font-bold">Equipe Sincronizada</span>
+                    </div>
+                </div>
+
+                <!-- Kanban da Cozinha -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Coluna 1: Novos Pedidos na Fila -->
+                    <div class="bg-[#0c0c0e] p-5 rounded-2xl border border-zinc-800 space-y-4">
+                        <h4 class="font-bold text-white text-sm border-b border-zinc-800 pb-2 flex items-center justify-between">
+                            <span>Fila de Espera</span>
+                            <span class="bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded text-xs" id="count-todo">0</span>
+                        </h4>
+                        <div id="kitchen-todo" class="space-y-3 min-h-[300px] max-h-[500px] overflow-y-auto pr-1">
+                            <!-- Pedidos inseridos dinamicamente -->
+                            <div class="text-center text-zinc-600 text-xs py-12">Nenhum pedido aguardando preparação.</div>
+                        </div>
+                    </div>
+
+                    <!-- Coluna 2: Preparando (Chapa / Montagem) -->
+                    <div class="bg-[#0c0c0e] p-5 rounded-2xl border border-zinc-800 space-y-4">
+                        <h4 class="font-bold text-yellow-500 text-sm border-b border-zinc-800 pb-2 flex items-center justify-between">
+                            <span>Grelhando / Montando</span>
+                            <span class="bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded text-xs" id="count-doing">0</span>
+                        </h4>
+                        <div id="kitchen-doing" class="space-y-3 min-h-[300px] max-h-[500px] overflow-y-auto pr-1">
+                            <div class="text-center text-zinc-600 text-xs py-12">Nenhum hambúrguer na chapa no momento.</div>
+                        </div>
+                    </div>
+
+                    <!-- Coluna 3: Pronto para Entrega / Garçom -->
+                    <div class="bg-[#0c0c0e] p-5 rounded-2xl border border-zinc-800 space-y-4">
+                        <h4 class="font-bold text-emerald-400 text-sm border-b border-zinc-800 pb-2 flex items-center justify-between">
+                            <span>Pronto para o Cliente (Balcão)</span>
+                            <span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded text-xs" id="count-done">0</span>
+                        </h4>
+                        <div id="kitchen-done" class="space-y-3 min-h-[300px] max-h-[500px] overflow-y-auto pr-1">
+                            <div class="text-center text-zinc-600 text-xs py-12">Nenhum pedido aguardando retirada.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 6: GESTÃO FINANCEIRA ================= -->
+        <section id="section-finance" class="tab-content hidden space-y-8">
+            <!-- Painel de Margem Bruta / Markup -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Calculadora de Insumos e Margem -->
+                <div class="bg-[#141417] p-6 rounded-3xl border border-zinc-800 space-y-4 lg:col-span-1">
+                    <h3 class="text-lg font-bold text-white border-b border-zinc-800 pb-2 flex items-center gap-2">
+                        <i data-lucide="calculator" class="text-yellow-500"></i> Calculadora de Margem & MarkUp
+                    </h3>
+                    <p class="text-xs text-zinc-400">Insira o custo de insumos e veja o preço de venda recomendado conforme as fórmulas do seu plano de negócios.</p>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs text-zinc-400 font-bold mb-1">Categoria do Produto</label>
+                            <select id="calc-category" onchange="updateCalcDefaults()" class="w-full bg-[#0c0c0e] border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-yellow-500">
+                                <option value="lanches">Lanches (Markup de 75%)</option>
+                                <option value="porcoes">Porções (Markup de 80%)</option>
+                                <option value="bebidas">Bebidas (Markup de 65%)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-zinc-400 font-bold mb-1">Custo Unitário dos Insumos (R$)</label>
+                            <input type="number" id="calc-cost" value="20.00" step="0.1" oninput="recalculateMarkup()" class="w-full bg-[#0c0c0e] border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-yellow-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-zinc-400 font-bold mb-1">MarkUp Definido (%)</label>
+                            <input type="number" id="calc-markup-percent" value="75" step="1" oninput="recalculateMarkup()" class="w-full bg-[#0c0c0e] border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-yellow-500">
+                        </div>
+                    </div>
+
+                    <!-- Resultados da Precificação -->
+                    <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 space-y-2 text-xs">
+                        <div class="flex justify-between">
+                            <span class="text-zinc-500">Preço de Venda Recomendado:</span>
+                            <span class="font-bold text-white" id="calc-price-result">R$ 35,00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-zinc-500">Lucro Bruto:</span>
+                            <span class="font-bold text-emerald-400" id="calc-profit-result">R$ 15,00 (42,86%)</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-zinc-500">CMV Percentual:</span>
+                            <span class="font-bold text-red-400" id="calc-cmv-result">57,14%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabela de Custos Fixos Mensais -->
+                <div class="bg-[#141417] p-6 rounded-3xl border border-zinc-800 space-y-4 lg:col-span-2">
+                    <h3 class="text-lg font-bold text-white border-b border-zinc-800 pb-2">Custos Operacionais Fixos Reais</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="text-zinc-500 border-b border-zinc-800">
+                                    <th class="py-2">Item de Despesa</th>
+                                    <th class="py-2 text-right">Valor Mensal Real (R$)</th>
+                                    <th class="py-2 text-right">% do Total</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-zinc-800 text-zinc-300">
+                                <tr>
+                                    <td class="py-2.5 font-medium text-white">Equipe de Cozinha & Salão</td>
+                                    <td class="py-2.5 text-right">R$ 12.400,44</td>
+                                    <td class="py-2.5 text-right text-zinc-500">74,03%</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 font-medium text-white">Retiradas Operacionais</td>
+                                    <td class="py-2.5 text-right">R$ 1.000,00</td>
+                                    <td class="py-2.5 text-right text-zinc-500">5,97%</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 font-medium text-white">Energia Elétrica Comercial</td>
+                                    <td class="py-2.5 text-right">R$ 700,00</td>
+                                    <td class="py-2.5 text-right text-zinc-500">4,18%</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 font-medium text-white">Contabilidade Comercial</td>
+                                    <td class="py-2.5 text-right">R$ 450,00</td>
+                                    <td class="py-2.5 text-right text-zinc-500">2,69%</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 font-medium text-white">Água & Gás Comercial</td>
+                                    <td class="py-2.5 text-right">R$ 300,00</td>
+                                    <td class="py-2.5 text-right text-zinc-500">1,79%</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 font-medium text-white">Insumos de Higiene, Limpeza & Internet</td>
+                                    <td class="py-2.5 text-right">R$ 1.900,00</td>
+                                    <td class="py-2.5 text-right text-zinc-500">11,34%</td>
+                                </tr>
+                                <tr class="bg-zinc-900/50 font-bold text-white border-t border-zinc-700">
+                                    <td class="py-3 px-2">CUSTO FIXO MENSAL TOTAL</td>
+                                    <td class="py-3 text-right text-yellow-500">R$ 16.750,44</td>
+                                    <td class="py-3 text-right">100,00%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demonstrativos e Fluxo de Caixa Integrado -->
+            <div class="bg-[#141417] p-6 md:p-8 rounded-3xl border border-zinc-800 space-y-6">
+                <div>
+                    <h3 class="text-2xl font-bold text-white font-brand uppercase tracking-wide">Viabilidade e Retorno</h3>
+                    <p class="text-zinc-400 text-sm">Resumo financeiro estrutural para expansão de novos pontos de venda.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-[#0c0c0e] p-5 rounded-2xl border border-zinc-800 flex flex-col justify-between">
+                        <div class="space-y-2">
+                            <span class="text-xs text-zinc-500 block">Ponto de Equilíbrio Comercial</span>
+                            <span class="text-xl font-black text-white">R$ 56.485,26 / mês</span>
+                            <p class="text-zinc-500 text-[11px]">Meta de vendas mensais para cobrir custos de operação.</p>
+                        </div>
+                    </div>
+                    <div class="bg-[#0c0c0e] p-5 rounded-2xl border border-zinc-800 flex flex-col justify-between">
+                        <div class="space-y-2">
+                            <span class="text-xs text-zinc-500 block">Valor Presente Líquido Comercial</span>
+                            <span class="text-xl font-black text-emerald-400">R$ 556.415,56</span>
+                            <p class="text-zinc-500 text-[11px]">Rentabilidade calculada livre de inflação e taxas básicas.</p>
+                        </div>
+                    </div>
+                    <div class="bg-[#0c0c0e] p-5 rounded-2xl border border-zinc-800 flex flex-col justify-between">
+                        <div class="space-y-2">
+                            <span class="text-xs text-zinc-500 block">Taxa Interna de Retorno Real</span>
+                            <span class="text-xl font-black text-yellow-500">130,68% a.a.</span>
+                            <p class="text-zinc-500 text-[11px]">Crescimento operacional muito superior aos investimentos básicos de renda fixa.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 7: CONSULTOR INTELIGENTE (GEMINI API) ================= -->
+        <section id="section-ai" class="tab-content hidden space-y-8">
+            <div class="bg-gradient-to-r from-zinc-900 to-black p-6 md:p-8 rounded-3xl border border-zinc-800 space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white font-brand uppercase tracking-wide flex items-center gap-2">
+                            <i data-lucide="sparkles" class="text-yellow-500 animate-pulse"></i> Hub de Inteligência Artificial ✨
+                        </h3>
+                        <p class="text-zinc-400 text-sm">
+                            Integrado ao modelo avançado do Gemini para otimização de cardápio, marketing estratégico e gestão de atendimento ao cliente.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-4 py-1.5 rounded-full text-xs font-bold">
+                        <span class="w-2.5 h-2.5 bg-green-500 rounded-full animate-ping"></span>
+                        Gemini 2.5 Comercial
+                    </div>
+                </div>
+
+                <!-- Abas Internas da IA -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Esquerda: Menu de Ferramentas de IA -->
+                    <div class="bg-[#0c0c0e] p-6 rounded-2xl border border-zinc-800 space-y-3 h-fit">
+                        <h4 class="font-bold text-white text-xs uppercase tracking-wider mb-2 border-b border-zinc-800 pb-2">Selecione uma Ferramenta</h4>
+                        <button onclick="selectAiTool('recipe')" id="btn-ai-recipe" class="ai-tab-btn w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-3 bg-yellow-500 text-black transition">
+                            <i data-lucide="chef-hat" class="w-4 h-4"></i> Ficha Técnica & Receita Gourmet ✨
+                        </button>
+                        <button onclick="selectAiTool('review')" id="btn-ai-review" class="ai-tab-btn w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-3 text-zinc-400 hover:text-white hover:bg-zinc-900 transition">
+                            <i data-lucide="message-square-quote" class="w-4 h-4"></i> Responder Avaliações (SAC) ✨
+                        </button>
+                        <button onclick="selectAiTool('marketing')" id="btn-ai-marketing" class="ai-tab-btn w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-3 text-zinc-400 hover:text-white hover:bg-zinc-900 transition">
+                            <i data-lucide="megaphone" class="w-4 h-4"></i> Marketing & Atração Local ✨
+                        </button>
+                    </div>
+
+                    <!-- Direita: Área de Trabalho da Ferramenta Selecionada -->
+                    <div class="lg:col-span-2 bg-[#0c0c0e] p-6 rounded-2xl border border-zinc-800 space-y-6">
+                        
+                        <!-- TOOL 1: RECIPE GENERATOR -->
+                        <div id="ai-tool-recipe" class="ai-tool-panel block space-y-4">
+                            <h4 class="font-bold text-white text-base">Inovação e Desenvolvimento de Cardápio ✨</h4>
+                            <p class="text-zinc-400 text-xs leading-relaxed">
+                                Insira ingredientes especiais para a IA formular lanches gourmet completos. O Gemini estimará as quantidades, custos ideais de insumos e sugerirá o preço de venda exato com base no markup.
+                            </p>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-[11px] text-zinc-500 font-bold uppercase tracking-wider mb-1">Ingredientes em Mãos (Ex: Costela, Gorgonzola, Maionese Verde, Geleia de Pimenta)</label>
+                                    <input type="text" id="ai-recipe-ingredients" placeholder="Ex: Carne Angus, queijo brie, mel, rúcula, pão australiano" class="w-full bg-[#141417] border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-yellow-500">
+                                </div>
+                                <div class="flex gap-4">
+                                    <div class="flex-1">
+                                        <label class="block text-[11px] text-zinc-500 font-bold uppercase tracking-wider mb-1">Custo Estimado de Insumos (R$)</label>
+                                        <input type="number" id="ai-recipe-cost" value="18.50" step="0.50" class="w-full bg-[#141417] border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-yellow-500">
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="block text-[11px] text-zinc-500 font-bold uppercase tracking-wider mb-1">Markup Comercial (%)</label>
+                                        <input type="number" id="ai-recipe-markup" value="75" class="w-full bg-[#141417] border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-yellow-500">
+                                    </div>
+                                </div>
+                                <button onclick="generateAiRecipe()" class="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition w-full">
+                                    <i data-lucide="sparkles" class="w-4 h-4"></i> Criar Ficha Técnica Gourmet ✨
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- TOOL 2: CUSTOMER REVIEW RESPONDER -->
+                        <div id="ai-tool-review" class="ai-tool-panel hidden space-y-4">
+                            <h4 class="font-bold text-white text-base">Respondente Profissional de Clientes (SAC) ✨</h4>
+                            <p class="text-zinc-400 text-xs leading-relaxed">
+                                Cole o texto da avaliação recebida por um cliente no Google ou Instagram. A inteligência artificial criará uma resposta excelente, empática e estratégica para proteger a reputação do seu negócio.
+                            </p>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-[11px] text-zinc-500 font-bold uppercase tracking-wider mb-1">Nota / Avaliação do Cliente</label>
+                                    <select id="ai-review-rating" class="w-full bg-[#141417] border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-yellow-500 mb-3">
+                                        <option value="5">⭐⭐⭐⭐⭐ 5 Estrelas (Excelente / Elogio)</option>
+                                        <option value="3">⭐⭐⭐ 3 Estrelas (Neutro / Comentário Construtivo)</option>
+                                        <option value="1">⭐ 1 Estrela (Crítica / Reclamação de Entrega ou Ponto da Carne)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] text-zinc-500 font-bold uppercase tracking-wider mb-1">Texto da Avaliação do Cliente</label>
+                                    <textarea id="ai-review-text" placeholder="Ex: Adorei o hambúrguer, mas a batata frita chegou um pouco murcha por causa do tempo de entrega..." class="w-full bg-[#141417] border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-yellow-500 h-24 resize-none"></textarea>
+                                </div>
+                                <button onclick="generateAiReviewResponse()" class="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition w-full">
+                                    <i data-lucide="message-square" class="w-4 h-4"></i> Gerar Resposta Estratégica ✨
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- TOOL 3: PROMOTIONS & MARKETING CAMPAIGN -->
+                        <div id="ai-tool-marketing" class="ai-tool-panel hidden space-y-4">
+                            <h4 class="font-bold text-white text-base">Estratégias de Promoção & Atração Diária ✨</h4>
+                            <p class="text-zinc-400 text-xs leading-relaxed">
+                                Crie postagens persuasivas e copys altamente vendedoras para converter o público de Martinópolis, principalmente para aumentar as vendas nas terças e quartas-feiras de menor fluxo.
+                            </p>
+                            <div class="space-y-3">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-[11px] text-zinc-500 font-bold uppercase tracking-wider mb-1">Dia / Foco do Evento</label>
+                                        <select id="ai-campaign-season" class="w-full bg-[#141417] border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-yellow-500">
+                                            <option value="Terça ou Quarta-Feira Comum">Terça ou Quarta-feira (Atrair Salão)</option>
+                                            <option value="Dia dos Namorados">Dia dos Namorados (Fidelização de Casal)</option>
+                                            <option value="Férias da Represa Laranja Doce">Férias na Represa (Atrair Turistas)</option>
+                                            <option value="Fim de Semana Intenso">Delivery Express de Sexta e Sábado</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] text-zinc-500 font-bold uppercase tracking-wider mb-1">Tipo de Oferta Comercial</label>
+                                        <select id="ai-campaign-offer" class="w-full bg-[#141417] border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-yellow-500">
+                                            <option value="Combo de Casal com Desconto">Desconto em Combo com Bebida Grátis</option>
+                                            <option value="Hambúrguer Edição Limitada">Lançamento de Produto de Edição Limitada</option>
+                                            <option value="Campanha Amigos da Solidariedade">Troque Alimento por 10% de Desconto</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button onclick="generateAiCampaign()" class="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition w-full">
+                                    <i data-lucide="megaphone" class="w-4 h-4"></i> Criar Anúncio de Venda ✨
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- RESULT CARD (COMMON TO ALL TOOLS) -->
+                        <div id="ai-result-card" class="bg-zinc-950 p-6 rounded-2xl border border-zinc-800 space-y-4 hidden relative overflow-hidden">
+                            <div class="absolute inset-0 bg-yellow-500/[0.02] pointer-events-none"></div>
+                            <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+                                <span class="text-xs font-bold uppercase text-yellow-500 tracking-wider flex items-center gap-1.5">
+                                    <i data-lucide="cpu" class="w-4 h-4"></i> Resposta do Consultor Gemini IA
+                                </span>
+                                <button onclick="copyAiResult()" class="text-xs bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white px-2.5 py-1.5 rounded-lg transition flex items-center gap-1.5">
+                                    <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Resultado
+                                </button>
+                            </div>
+                            <!-- Output Text Container -->
+                            <div id="ai-output-text" class="text-xs text-zinc-300 leading-relaxed whitespace-pre-line font-sans max-h-96 overflow-y-auto pr-1">
+                                <!-- Generated text goes here -->
+                            </div>
+                        </div>
+
+                        <!-- LOADING INDICATOR -->
+                        <div id="ai-loading-indicator" class="hidden flex-col items-center justify-center py-12 space-y-4">
+                            <div class="relative w-12 h-12">
+                                <div class="absolute inset-0 border-4 border-zinc-800 rounded-full"></div>
+                                <div class="absolute inset-0 border-4 border-yellow-500 rounded-full border-t-transparent animate-spin"></div>
+                            </div>
+                            <p class="text-xs text-zinc-400 font-medium animate-pulse">
+                                Consultando o modelo Gemini 2.5 da Google...
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- RODAPÉ DA APLICAÇÃO -->
+    <footer class="bg-[#0c0c0e] border-t border-zinc-800 py-6 mt-12 text-center text-xs text-zinc-500 px-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <p>© 2026 • Hamburgueria da Jô • Martinópolis - SP • Painel de Controle Operacional Comercial</p>
+            <div class="flex gap-4">
+                <span class="hover:text-white transition">Gestão Comercial & Financeira</span>
+                <span class="text-zinc-800">|</span>
+                <span class="hover:text-white transition">Sistema Integrado do Proprietário</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL DE COMPARTILHAMENTO E ENTREGA -->
+    <div id="share-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#141417] border border-zinc-800 p-6 md:p-8 rounded-3xl max-w-lg w-full space-y-6 relative">
+            <button onclick="closeShareModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            
+            <div class="text-center space-y-2">
+                <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="link" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-black font-brand uppercase tracking-wider text-white">Compartilhar Página do Painel</h3>
+                <p class="text-zinc-400 text-sm">
+                    Envie o link do painel de controle operacional e de delivery para seus gerentes, sócios ou colaboradores da Hamburgueria da Jô.
+                </p>
+            </div>
+
+            <!-- Dados para cópia rápida -->
+            <div class="space-y-3">
+                <label class="block text-xs text-zinc-500 font-bold uppercase tracking-wider">Texto de Compartilhamento Rápido</label>
+                <textarea readonly class="w-full bg-[#0c0c0e] border border-zinc-800 rounded-xl p-3 text-xs text-zinc-300 font-mono h-28 focus:outline-none focus:ring-0 resize-none">Olá, equipe! 🍔
+Aqui está o link do nosso Painel de Gestão Operacional e Delivery da Hamburgueria da Jô (Martinópolis - SP).
+Neste painel podemos visualizar e adiantar a fila da chapa, lançar comandas de mesas, calcular o CMV dos insumos e acessar nosso Consultor Inteligente de IA para responder clientes e gerar novos copys de anúncios.
+
+Link de Acesso: [Simulador Integrado Hamburgueria da Jô]</textarea>
+            </div>
+
+            <!-- Botões de Ação do Modal -->
+            <div class="flex gap-3 pt-2">
+                <button onclick="copyToClipboardText()" class="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black py-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2">
+                    <i data-lucide="copy" class="w-4.5 h-4.5"></i> Copiar Link & Texto
+                </button>
+                <button onclick="closeShareModal()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white py-3 rounded-xl font-bold text-sm transition">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT: CONTROLE OPERACIONAL COMPACTO E EFICIENTE -->
+    <script>
+        // 1. Banco de Dados dos Produtos do TCC (Composição de Preço e Custo Real)
+        const products = [
+            { id: 1, name: "Jô Burger Gourmet", category: "lanches", price: 35.00, cost: 20.00, desc: "Blend artesanal de 150g, muito queijo cheddar derretido, cebola caramelizada e molho da Jô no pão de brioche.", image: "🍔" },
+            { id: 2, name: "Cheddar Bacon Especial", category: "lanches", price: 38.00, cost: 22.00, desc: "Blend de costela 150g, bacon crocante, cheddar cremoso e picles artesanal.", image: "🥓" },
+            { id: 3, name: "Fritas Rústicas da Jô", category: "porcoes", price: 25.00, cost: 13.88, desc: "Batatas fritas com casca temperadas com páprica defumada e alecrim, maionese verde artesanal.", image: "🍟" },
+            { id: 4, name: "Anéis de Cebola Crocantes", category: "porcoes", price: 22.00, cost: 12.22, desc: "Anéis de cebola gigantes empanados na farinha panko, fritos na temperatura perfeita.", image: "🧅" },
+            { id: 5, name: "Refrigerante Funada Lata", category: "bebidas", price: 6.00, cost: 3.59, desc: "Tradição regional de Presidente Prudente e Martinópolis bem gelada.", image: "🥤" },
+            { id: 6, name: "Cerveja Artesanal Oeste", category: "bebidas", price: 12.00, cost: 7.00, desc: "Cerveja Pilsen local selecionada para harmonizar com os hambúrgueres.", image: "🍺" }
+        ];
+
+        // 2. Estado Global do Sistema
+        let cart = [];
+        let comandaItems = [];
+        let kitchenOrders = [
+            // Pedidos iniciais mockados para exemplificar funcionamento imediato da cozinha
+            { id: 101, ref: "Mesa 3", items: [{ name: "Jô Burger Gourmet", qty: 2 }], status: "todo", timestamp: "08:42" },
+            { id: 102, ref: "Mesa 1", items: [{ name: "Cheddar Bacon Especial", qty: 1 }, { name: "Refrigerante Funada Lata", qty: 1 }], status: "doing", timestamp: "08:45" }
+        ];
+
+        // 3. Frases da Mascote focado no Sucesso Comercial Real
+        const mascotSpeeches = [
+            "Você sabia? O setor de lanches e carnes artesanais no Brasil é um dos mercados que mais crescem no food service!",
+            "Segurança alimentar em primeiro lugar! Lembre a equipe da chapa de utilizar touca descartável e manter a higiene perfeita dos utensílios.",
+            "Nosso ponto de equilíbrio operacional ideal é R$ 56.485,26. Acompanhar a margem de contribuição diariamente garante atingirmos essa meta mais cedo!",
+            "O projeto solidário 'Amigos da Solidariedade' atrai muito engajamento da comunidade de Martinópolis. Fazer o bem fortalece nosso papel social!",
+            "Cuidado constante com o CMV de lanches! O controle preciso do desperdício de insumos na cozinha é a chave para o lucro líquido alto."
+        ];
+        let speechIndex = 0;
+
+        // Inicialização de Componentes e Interface
+        window.onload = function() {
+            lucide.createIcons();
+            renderMenuGrid();
+            populateComandaDropdown();
+            renderKitchen();
+            updateCartUI();
+        };
+
+        // Troca de Tabs do Sistema
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('block'));
+            
+            document.getElementById('section-' + tabId).classList.remove('hidden');
+            document.getElementById('section-' + tabId).classList.add('block');
+
+            // Atualiza botões
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-zinc-900";
+            });
+
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn) {
+                activeBtn.className = "tab-btn px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 bg-yellow-500 text-black shadow-md shadow-yellow-500/10";
+            }
+        }
+
+        // Sistema de Notificações Customizado (Evita alerts e cumpre as normas do iFrame)
+        function showNotification(title, message, iconType = "info") {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-message').innerText = message;
+            
+            // Exibe e esconde em 4 segundos
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 4000);
+        }
+
+        // Controle da Mascote
+        function changeMascotSpeech() {
+            speechIndex = (speechIndex + 1) % mascotSpeeches.length;
+            showNotification("Jôzinha diz:", mascotSpeeches[speechIndex], "message-square");
+        }
+
+        // Renderização do Cardápio Cliente
+        function renderMenuGrid(filter = "todos") {
+            const grid = document.getElementById('menu-grid');
+            grid.innerHTML = "";
+
+            const filtered = filter === "todos" ? products : products.filter(p => p.category === filter);
+
+            filtered.forEach(p => {
+                const card = document.createElement('div');
+                card.className = "bg-[#141417] p-5 rounded-3xl border border-zinc-800 flex flex-col justify-between hover:border-zinc-700 transition space-y-4";
+                card.innerHTML = `
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-start">
+                            <span class="text-4xl">${p.image}</span>
+                            <span class="bg-zinc-900 text-yellow-500 border border-zinc-800 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">${p.category}</span>
+                        </div>
+                        <h4 class="font-bold text-white text-base leading-tight mt-2">${p.name}</h4>
+                        <p class="text-zinc-500 text-xs leading-relaxed">${p.desc}</p>
+                    </div>
+                    <div class="flex justify-between items-center pt-2">
+                        <span class="font-black text-white text-lg">R$ ${p.price.toFixed(2)}</span>
+                        <button onclick="addToCart(${p.id})" class="bg-zinc-800 hover:bg-yellow-500 hover:text-black text-white p-2.5 rounded-xl transition">
+                            <i data-lucide="plus" class="w-4.5 h-4.5"></i>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function filterCategory(cat) {
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.className = "cat-btn px-4 py-2 rounded-xl text-xs font-bold bg-zinc-900 text-zinc-400 hover:text-white";
+            });
+            event.target.className = "cat-btn px-4 py-2 rounded-xl text-xs font-bold bg-yellow-500 text-black";
+            renderMenuGrid(cat);
+        }
+
+        // Sistema de Compras e Envio de Pedido Simulados (Cliente)
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const exists = cart.find(item => item.id === productId);
+            if (exists) {
+                exists.qty++;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+            updateCartUI();
+            showNotification("Item Adicionado!", `${product.name} está no seu carrinho.`, "shopping-cart");
+        }
+
+        function changeCartQty(productId, amount) {
+            const item = cart.find(i => i.id === productId);
+            if (item) {
+                item.qty += amount;
+                if (item.qty <= 0) {
+                    cart = cart.filter(i => i.id !== productId);
+                }
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            container.innerHTML = "";
+
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="text-zinc-500 text-xs text-center py-8">Nenhum item adicionado ainda. Escolha os lanches ao lado!</p>`;
+                totalEl.innerText = "R$ 0,00";
+                return;
+            }
+
+            let total = 0;
+            cart.forEach(item => {
+                total += item.price * item.qty;
+                const row = document.createElement('div');
+                row.className = "flex justify-between items-center bg-[#0c0c0e] p-3 rounded-xl border border-zinc-800 text-xs";
+                row.innerHTML = `
+                    <div class="space-y-1">
+                        <span class="font-bold text-white block">${item.name}</span>
+                        <span class="text-zinc-500">R$ ${(item.price * item.qty).toFixed(2)}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeCartQty(${item.id}, -1)" class="w-6 h-6 bg-zinc-800 text-zinc-400 rounded flex items-center justify-center font-bold">-</button>
+                        <span class="text-white font-bold">${item.qty}</span>
+                        <button onclick="changeCartQty(${item.id}, 1)" class="w-6 h-6 bg-zinc-800 text-zinc-400 rounded flex items-center justify-center font-bold">+</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+            totalEl.innerText = `R$ ${total.toFixed(2)}`;
+        }
+
+        // Envia pedido para preparação (Kanban Cozinha)
+        function submitOrder(type = "Mesa") {
+            const customerRef = document.getElementById('customer-ref').value.trim();
+            if (cart.length === 0) {
+                showNotification("Atenção", "Adicione itens ao carrinho antes de enviar para preparação.", "alert-triangle");
+                return;
+            }
+            if (!customerRef) {
+                showNotification("Atenção", "Por favor, preencha o número da mesa ou nome do cliente.", "alert-triangle");
+                return;
+            }
+
+            const newOrder = {
+                id: Math.floor(Math.random() * 900) + 100,
+                ref: customerRef,
+                items: cart.map(item => ({ name: item.name, qty: item.qty })),
+                status: "todo",
+                timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            kitchenOrders.push(newOrder);
+            cart = [];
+            document.getElementById('customer-ref').value = "";
+            updateCartUI();
+            renderKitchen();
+            showNotification("Sucesso!", `Pedido #${newOrder.id} enviado para a chapa da Cozinha!`, "check-circle");
+        }
+
+        // Atendimento do Garçom com Comanda Direta
+        function populateComandaDropdown() {
+            const dropdown = document.getElementById('comanda-produto');
+            dropdown.innerHTML = "";
+            products.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.innerText = `${p.name} (R$ ${p.price.toFixed(2)})`;
+                dropdown.appendChild(opt);
+            });
+        }
+
+        function addComandaItem() {
+            const pId = parseInt(document.getElementById('comanda-produto').value);
+            const qty = parseInt(document.getElementById('comanda-qtd').value);
+            const mesa = document.getElementById('comanda-mesa').value;
+            const product = products.find(p => p.id === pId);
+
+            if (qty <= 0) return;
+
+            const existing = comandaItems.find(i => i.product.id === pId && i.mesa === mesa);
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                comandaItems.push({ mesa, product, qty });
+            }
+
+            updateWaiterComandaUI();
+        }
+
+        function updateWaiterComandaUI() {
+            const body = document.getElementById('comanda-table-body');
+            const totalEl = document.getElementById('comanda-total');
+            body.innerHTML = "";
+
+            if (comandaItems.length === 0) {
+                body.innerHTML = `<tr><td colspan="4" class="text-center text-zinc-500 py-8">Nenhum item lançado na comanda temporária.</td></tr>`;
+                totalEl.innerText = "R$ 0,00";
+                return;
+            }
+
+            let total = 0;
+            comandaItems.forEach((item, index) => {
+                total += item.product.price * item.qty;
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-zinc-800 text-zinc-300";
+                tr.innerHTML = `
+                    <td class="py-2.5 font-semibold text-white">${item.mesa}</td>
+                    <td class="py-2.5">${item.product.name}</td>
+                    <td class="py-2.5 text-center">${item.qty}</td>
+                    <td class="py-2.5 text-right">R$ ${(item.product.price * item.qty).toFixed(2)}</td>
+                `;
+                body.appendChild(tr);
+            });
+
+            totalEl.innerText = `R$ ${total.toFixed(2)}`;
+        }
+
+        function submitWaiterOrder() {
+            if (comandaItems.length === 0) {
+                showNotification("Atenção", "Adicione produtos à mesa antes de enviar.", "alert-triangle");
+                return;
+            }
+
+            // Agrupa por mesa para enviar pedidos individuais à cozinha
+            const uniqueMesas = [...new Set(comandaItems.map(i => i.mesa))];
+            uniqueMesas.forEach(m => {
+                const mesaItems = comandaItems.filter(i => i.mesa === m);
+                const newOrder = {
+                    id: Math.floor(Math.random() * 900) + 100,
+                    ref: m,
+                    items: mesaItems.map(i => ({ name: i.product.name, qty: i.qty })),
+                    status: "todo",
+                    timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+                };
+                kitchenOrders.push(newOrder);
+            });
+
+            comandaItems = [];
+            updateWaiterComandaUI();
+            renderKitchen();
+            showNotification("Sucesso!", "Comandas integradas e disparadas para a Cozinha!", "check");
+        }
+
+        // Operação e Fila de Cozinha (Quadro 1 - Chapa/Montagem)
+        function renderKitchen() {
+            const todoContainer = document.getElementById('kitchen-todo');
+            const doingContainer = document.getElementById('kitchen-doing');
+            const doneContainer = document.getElementById('kitchen-done');
+
+            todoContainer.innerHTML = "";
+            doingContainer.innerHTML = "";
+            doneContainer.innerHTML = "";
+
+            let countTodo = 0, countDoing = 0, countDone = 0;
+
+            kitchenOrders.forEach(order => {
+                const card = document.createElement('div');
+                card.className = "bg-[#141417] border border-zinc-800 p-4 rounded-xl space-y-3 shadow-md";
+                
+                const itemsList = order.items.map(i => `<li>• <span class="font-bold text-white">${i.qty}x</span> ${i.name}</li>`).join("");
+                
+                let actionBtn = "";
+                if (order.status === "todo") {
+                    countTodo++;
+                    actionBtn = `<button onclick="moveOrder(${order.id}, 'doing')" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-1.5 rounded-lg text-xs font-bold transition">Chapar / Preparar</button>`;
+                } else if (order.status === "doing") {
+                    countDoing++;
+                    actionBtn = `<button onclick="moveOrder(${order.id}, 'done')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 rounded-lg text-xs font-bold transition">Pronto para Garçom</button>`;
+                } else {
+                    countDone++;
+                    actionBtn = `<button onclick="archiveOrder(${order.id})" class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 py-1.5 rounded-lg text-xs font-bold transition">Marcar como Pago</button>`;
+                }
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center text-[10px]">
+                        <span class="text-zinc-500 font-bold">#${order.id}</span>
+                        <span class="text-yellow-500 font-mono">${order.timestamp}</span>
+                    </div>
+                    <div class="space-y-1">
+                        <span class="font-black text-white text-sm block">${order.ref}</span>
+                        <ul class="text-xs text-zinc-400 space-y-0.5">
+                            ${itemsList}
+                        </ul>
+                    </div>
+                    ${actionBtn}
+                `;
+
+                if (order.status === "todo") todoContainer.appendChild(card);
+                else if (order.status === "doing") doingContainer.appendChild(card);
+                else doneContainer.appendChild(card);
+            });
+
+            // Atualiza marcadores numéricos da cozinha
+            document.getElementById('count-todo').innerText = countTodo;
+            document.getElementById('count-doing').innerText = countDoing;
+            document.getElementById('count-done').innerText = countDone;
+
+            const totalActive = countTodo + countDoing;
+            const badge = document.getElementById('kitchen-count');
+            if (totalActive > 0) {
+                badge.innerText = totalActive;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            // Atualiza a visualização do balcão de retiradas para o garçom
+            renderBalcaoWaiter();
+        }
+
+        // RENDERIZAR BALCÃO DE RETIRADAS NO PAINEL DO GARÇOM (SOLICITAÇÃO DO USUÁRIO)
+        function renderBalcaoWaiter() {
+            const container = document.getElementById('balcao-waiter-list');
+            const totalCountBadge = document.getElementById('balcao-count');
+            const waiterTabBadge = document.getElementById('waiter-bell-count');
+            
+            container.innerHTML = "";
+            
+            // Filtra apenas pedidos prontos esperando entrega
+            const readyOrders = kitchenOrders.filter(o => o.status === "done");
+            totalCountBadge.innerText = readyOrders.length;
+
+            if (readyOrders.length > 0) {
+                waiterTabBadge.innerText = readyOrders.length;
+                waiterTabBadge.classList.remove('hidden');
+            } else {
+                waiterTabBadge.classList.add('hidden');
+            }
+
+            if (readyOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center text-zinc-600 text-xs py-4 flex items-center justify-center gap-2">
+                        <i data-lucide="smile" class="w-4 h-4 text-zinc-600"></i> Nenhum lanche pendente no balcão de retirada.
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            readyOrders.forEach(order => {
+                const card = document.createElement('div');
+                card.className = "bg-[#1c1c21] border-2 border-yellow-500/40 p-4 rounded-xl flex flex-col justify-between gap-3 shadow-lg hover:border-yellow-500 transition badge-pulse";
+                
+                const itemsList = order.items.map(i => `<span class="font-bold text-white">${i.qty}x</span> ${i.name}`).join(", ");
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-black text-yellow-500 uppercase tracking-wide flex items-center gap-1">
+                                <i data-lucide="bell-ring" class="w-3.5 h-3.5 animate-bounce"></i> ${order.ref}
+                            </span>
+                            <span class="text-[9px] text-zinc-500">${order.timestamp}</span>
+                        </div>
+                        <p class="text-xs text-zinc-300 leading-tight">${itemsList}</p>
+                    </div>
+                    <button onclick="entregarPedidoMesa(${order.id})" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1">
+                        <i data-lucide="navigation" class="w-3.5 h-3.5"></i> Entregar na Mesa
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        // AÇÃO DO GARÇOM RETIRAR DO BALCÃO E ENTREGAR (SOLICITAÇÃO DO USUÁRIO)
+        function entregarPedidoMesa(orderId) {
+            const order = kitchenOrders.find(o => o.id === orderId);
+            if (order) {
+                // Remove o pedido do sistema operacional (considerado entregue com sucesso!)
+                kitchenOrders = kitchenOrders.filter(o => o.id !== orderId);
+                renderKitchen();
+                showNotification("Pedido Entregue! 🍔", `${order.ref} atendida com sucesso.`, "check-circle");
+            }
+        }
+
+        function moveOrder(orderId, newStatus) {
+            const order = kitchenOrders.find(o => o.id === orderId);
+            if (order) {
+                order.status = newStatus;
+                renderKitchen();
+                const msg = newStatus === 'doing' ? `Pedido #${orderId} foi para a chapa.` : `Pedido #${orderId} pronto para retirada do Garçom!`;
+                
+                // Dispara alertas específicos
+                if (newStatus === 'done') {
+                    showNotification("BALCÃO 🔔", `O pedido da ${order.ref} está pronto! Vá retirar.`, "bell-ring");
+                } else {
+                    showNotification("Aviso de Produção", msg, "clock");
+                }
+            }
+        }
+
+        function archiveOrder(orderId) {
+            kitchenOrders = kitchenOrders.filter(o => o.id !== orderId);
+            renderKitchen();
+            showNotification("Operação Concluída", `Mesa #${orderId} encerrada. Caixa atualizado.`, "badge-check");
+        }
+
+        // Calculadora Financeira Real e Integrada (Markup TCC)
+        function updateCalcDefaults() {
+            const cat = document.getElementById('calc-category').value;
+            const costInput = document.getElementById('calc-cost');
+            const markupInput = document.getElementById('calc-markup-percent');
+
+            if (cat === "lanches") {
+                costInput.value = "20.00";
+                markupInput.value = "75";
+            } else if (cat === "porcoes") {
+                costInput.value = "12.00";
+                markupInput.value = "80";
+            } else {
+                costInput.value = "3.59";
+                markupInput.value = "65";
+            }
+            recalculateMarkup();
+        }
+
+        function recalculateMarkup() {
+            const cost = parseFloat(document.getElementById('calc-cost').value) || 0;
+            const markupPercent = parseFloat(document.getElementById('calc-markup-percent').value) || 0;
+
+            // Markup sobre o custo: Preço = Custo * (1 + Markup/100)
+            const price = cost * (1 + (markupPercent / 100));
+            const profitVal = price - cost;
+            const profitPercent = price > 0 ? (profitVal / price) * 100 : 0;
+            const cmvPercent = price > 0 ? (cost / price) * 100 : 0;
+
+            document.getElementById('calc-price-result').innerText = `R$ ${price.toFixed(2)}`;
+            document.getElementById('calc-profit-result').innerText = `R$ ${profitVal.toFixed(2)} (${profitPercent.toFixed(2)}%)`;
+            document.getElementById('calc-cmv-result').innerText = `${cmvPercent.toFixed(2)}%`;
+        }
+
+        // Modal de Compartilhamento & Copiar para Área de Transferência
+        function openShareModal() {
+            document.getElementById('share-modal').classList.remove('hidden');
+        }
+
+        function closeShareModal() {
+            document.getElementById('share-modal').classList.add('hidden');
+        }
+
+        function copyToClipboardText() {
+            const area = document.querySelector('#share-modal textarea');
+            area.select();
+            document.execCommand('copy');
+            showNotification("Texto Copiado!", "Link e texto de apresentação prontos para envio no WhatsApp.", "clipboard");
+        }
+
+        // ================= GEMINI API LLM INTEGRATIONS =================
+
+        // Função Genérica com Exponential Backoff
+        async function callGemini(prompt, systemInstruction = "") {
+            const apiKey = ""; // Runtime injeta automaticamente no ambiente
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }]
+            };
+            
+            if (systemInstruction) {
+                payload.systemInstruction = { parts: [{ text: systemInstruction }] };
+            }
+
+            let delay = 1000;
+            for (let attempt = 0; attempt < 5; attempt++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data.candidates?.[0]?.content?.parts?.[0]?.text || "Nenhuma resposta pôde ser gerada pelo modelo.";
+                    }
+                } catch (e) {
+                    // Ignora o erro para tentar novamente até estourar o limite
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2; // Dobra o tempo em cada iteração (1s, 2s, 4s, 8s, 16s)
+            }
+            throw new Error("Erro de conexão com o servidor do Gemini após 5 tentativas de conexão.");
+        }
+
+        // Seleção de Abas do Hub de IA
+        function selectAiTool(toolName) {
+            document.querySelectorAll('.ai-tool-panel').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.ai-tool-panel').forEach(el => el.classList.remove('block'));
+            
+            document.getElementById('ai-tool-' + toolName).classList.remove('hidden');
+            document.getElementById('ai-tool-' + toolName).classList.add('block');
+
+            document.querySelectorAll('.ai-tab-btn').forEach(btn => {
+                btn.className = "ai-tab-btn w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-3 text-zinc-400 hover:text-white hover:bg-zinc-900 transition";
+            });
+
+            const activeBtn = document.getElementById('btn-ai-' + toolName);
+            if (activeBtn) {
+                activeBtn.className = "ai-tab-btn w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-3 bg-yellow-500 text-black transition";
+            }
+
+            // Oculta card anterior de resultado ao trocar de ferramenta
+            document.getElementById('ai-result-card').classList.add('hidden');
+        }
+
+        // Mostra estado de carregamento
+        function setAiLoading(isLoading) {
+            const loader = document.getElementById('ai-loading-indicator');
+            const resultCard = document.getElementById('ai-result-card');
+            
+            if (isLoading) {
+                loader.classList.remove('hidden');
+                loader.classList.add('flex');
+                resultCard.classList.add('hidden');
+            } else {
+                loader.classList.add('hidden');
+                loader.classList.remove('flex');
+            }
+        }
+
+        // TOOL 1: Geração de Receita Gourmet por IA
+        async function generateAiRecipe() {
+            const ingredients = document.getElementById('ai-recipe-ingredients').value.trim();
+            const cost = parseFloat(document.getElementById('ai-recipe-cost').value) || 18.50;
+            const markup = parseFloat(document.getElementById('ai-recipe-markup').value) || 75;
+
+            if (!ingredients) {
+                showNotification("Atenção", "Por favor, digite pelo menos um ingrediente para a IA.", "alert-triangle");
+                return;
+            }
+
+            setAiLoading(true);
+
+            // Cálculo matemático para a receita
+            const suggestedPrice = cost * (1 + (markup / 100));
+
+            const systemPrompt = `Você é um Chef de Cozinha Executivo e Consultor de Hamburguerias Gourmet Comerciais.
+Seu objetivo é gerar fichas técnicas inovadoras para o cardápio oficial da 'Hamburgueria da Jô' em Martinópolis-SP.
+Apresente a receita estruturada da seguinte forma:
+1. ✨ Nome Comercial do Hambúrguer (Criativo e apetitoso)
+2. ✨ Conceito & Apelo Comercial (Por que será um sucesso de vendas e o que atrai o público local)
+3. ✨ Ingredientes & Ficha Técnica Operacional do Blend de carne e acompanhamentos
+4. ✨ Preparo & Tempo de Chapa Recomendado (Focado em rapidez e consistência)
+5. ✨ Precificação Sugerida: R$ ${suggestedPrice.toFixed(2)} (Calculada a partir de R$ ${cost.toFixed(2)} de custo de matéria-prima com Markup planejado de ${markup}%).`;
+
+            const prompt = `Crie um hambúrguer premium de alta margem de lucro utilizando: "${ingredients}". Evite teorias de TCC acadêmicas, fale como um chef auxiliando o empresário no dia a dia da cozinha comercial.`;
+
+            try {
+                const response = await callGemini(prompt, systemPrompt);
+                document.getElementById('ai-output-text').innerText = response;
+                document.getElementById('ai-result-card').classList.remove('hidden');
+            } catch (err) {
+                showNotification("Erro na IA", err.message, "alert-circle");
+            } finally {
+                setAiLoading(false);
+            }
+        }
+
+        // TOOL 2: Resposta de Avaliações (Novo!)
+        async function generateAiReviewResponse() {
+            const rating = document.getElementById('ai-review-rating').value;
+            const reviewText = document.getElementById('ai-review-text').value.trim();
+
+            if (!reviewText) {
+                showNotification("Atenção", "Por favor, cole o texto da avaliação do cliente antes de enviar.", "alert-triangle");
+                return;
+            }
+
+            setAiLoading(true);
+
+            const systemPrompt = `Você é o Gerente de Relacionamento e Sucesso do Cliente (SAC) da Hamburgueria da Jô.
+Sua missão é gerar respostas elegantes, profissionais e empáticas para as avaliações que os clientes deixam nas redes sociais ou Google Meu Negócio.
+Diretrizes:
+- Se for avaliação 5 estrelas: Agradeça com muita simpatia, reforce o orgulho de servir Martinópolis e convide a voltar em breve.
+- Se for avaliação 1 ou 3 estrelas: Seja extremamente cordial, peça desculpas sinceras, explique que o controle de qualidade foi alertado, e peça para entrarem em contato no privado para que possamos oferecer uma compensação e resolver a situação imediatamente de forma justa. Nunca seja defensivo.`;
+
+            const prompt = `Gere uma resposta excelente para esta avaliação de nota ${rating}/5 estrelas recebida: "${reviewText}".`;
+
+            try {
+                const response = await callGemini(prompt, systemPrompt);
+                document.getElementById('ai-output-text').innerText = response;
+                document.getElementById('ai-result-card').classList.remove('hidden');
+            } catch (err) {
+                showNotification("Erro na IA", err.message, "alert-circle");
+            } finally {
+                setAiLoading(false);
+            }
+        }
+
+        // TOOL 3: Geração de Campanhas de Atração Comercial
+        async function generateAiCampaign() {
+            const season = document.getElementById('ai-campaign-season').value;
+            const offer = document.getElementById('ai-campaign-offer').value;
+
+            setAiLoading(true);
+
+            const systemPrompt = `Você é um Gestor de Tráfego Pago e Redes Sociais altamente experiente no nicho gastronômico.
+Seu papel é criar campanhas promocionais de alto engajamento para a Hamburgueria da Jô, focadas em Martinópolis-SP.
+Apresente a campanha formatada no seguinte formato:
+1. ✨ Tema de Campanha & Slogan Persuasivo
+2. ✨ Copy Completa para Post de Instagram (Pronta para copiar e colar com emojis, gatilhos de escassez/desejo e hashtags locais de Martinópolis e região)
+3. ✨ Roteiro Rápido para Vídeo do Reels / TikTok (Explique o que filmar na chapa e no salão para atrair cliques)
+4. ✨ Sugestão de Direcionamento de Público para Anúncios Pagos Locais.`;
+
+            const prompt = `Crie uma campanha promocional para o período de "${season}" com foco na oferta: "${offer}". Mantenha um tom profissional, altamente vendedor, alegre e sem jargões de TCC acadêmico.`;
+
+            try {
+                const response = await callGemini(prompt, systemPrompt);
+                document.getElementById('ai-output-text').innerText = response;
+                document.getElementById('ai-result-card').classList.remove('hidden');
+            } catch (err) {
+                showNotification("Erro na IA", err.message, "alert-circle");
+            } finally {
+                setAiLoading(false);
+            }
+        }
+
+        // Copiar texto gerado pela IA
+        function copyAiResult() {
+            const text = document.getElementById('ai-output-text').innerText;
+            if (!text) return;
+            
+            // Método de fallback seguro para cópia dentro de iFrames
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            showNotification("Copiado!", "A resposta da IA foi copiada para sua área de transferência.", "clipboard");
+        }
+    </script>
+</body>
+</html>
